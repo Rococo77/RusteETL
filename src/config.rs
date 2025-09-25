@@ -24,6 +24,10 @@ pub struct ExtractorConfig {
     pub path: Option<String>,
     /// Whether CSV has headers.
     pub has_headers: Option<bool>,
+    /// Optional delimiter for CSV (single character) represented as a string of length 1.
+    pub delimiter: Option<String>,
+    /// Optional sheet name for spreadsheet extractors.
+    pub sheet: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -22,7 +22,7 @@ fn test_xlsx_extract() {
         sheet: None,
     };
     let data = extractor.extract().unwrap();
-    assert!(data.len() >= 1);
+    assert!(!data.is_empty());
     assert_eq!(data[0][0], "A");
 
     let _ = std::fs::remove_file(&tmp);

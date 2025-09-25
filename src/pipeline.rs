@@ -5,7 +5,7 @@
 //! concrete implementation.
 
 use crate::error::EtlError;
-use crate::extractors::{csv::CsvExtractor, postgres::PostgresExtractor};
+use crate::extractors::{csv::CsvExtractor, postgres::PostgresExtractor, xlsx::XlsxExtractor};
 use crate::loaders::{csv::CsvLoader, postgres::PostgresLoader};
 use crate::transformers::{filter::FilterTransformer, uppercase::UppercaseTransformer};
 
@@ -14,6 +14,8 @@ use crate::transformers::{filter::FilterTransformer, uppercase::UppercaseTransfo
 pub enum Extractor {
     /// CSV extractor.
     Csv(CsvExtractor),
+    /// XLSX extractor.
+    Xlsx(XlsxExtractor),
     /// PostgreSQL extractor (stub).
     Postgres(PostgresExtractor),
 }
@@ -22,6 +24,7 @@ impl Extractor {
     pub fn extract(&self) -> Result<Vec<Vec<String>>, EtlError> {
         match self {
             Extractor::Csv(e) => e.extract(),
+            Extractor::Xlsx(e) => e.extract(),
             Extractor::Postgres(e) => e.extract(),
         }
     }
