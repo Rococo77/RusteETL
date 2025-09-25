@@ -1,6 +1,8 @@
-//! Module utilitaire: gestion des erreurs, logging, etc.
+//! Utility helpers for the project.
+//!
+//! Small helpers used across the crate such as simple logging helpers.
 
-/// Affiche une erreur sur stderr
+/// Print an error to stderr.
 pub fn log_error(e: &dyn std::error::Error) {
     eprintln!("Erreur: {}", e);
 }

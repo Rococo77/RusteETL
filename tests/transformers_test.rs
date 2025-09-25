@@ -1,4 +1,4 @@
-use ruste_etl::transformers::{Transformer, UppercaseTransformer};
+use ruste_etl::transformers::uppercase::UppercaseTransformer;
 
 #[test]
 fn test_uppercase_transformer() {

@@ -1,19 +1,18 @@
-mod extractors;
-mod transformers;
-mod loaders;
-mod pipeline;
-mod config;
-mod utils;
+//! Binary entry point for the RusteETL CLI.
+//!
+//! This binary loads a YAML configuration and runs the pipeline described
+//! by it. The configuration selects the extractor, transformer and loader.
 
-use extractors::CsvExtractor;
-use transformers::UppercaseTransformer;
-use loaders::CsvLoader;
-use pipeline::Pipeline;
-use utils::log_error;
-use config::load_config;
+use ruste_etl::config::load_config;
+use ruste_etl::error::EtlError;
+use ruste_etl::extractors::{csv::CsvExtractor, postgres::PostgresExtractor};
+use ruste_etl::transformers::{uppercase::UppercaseTransformer, filter::FilterTransformer};
+use ruste_etl::loaders::{csv::CsvLoader, postgres::PostgresLoader};
+use ruste_etl::pipeline::{Pipeline, Extractor, Transformer, Loader};
+use ruste_etl::utils::log_error;
 
 fn main() {
-    // Charge la configuration depuis un fichier YAML
+    // Load configuration from YAML file
     let config_path = "examples/pipeline.yml";
     let config = match load_config(config_path) {
         Ok(cfg) => cfg,
@@ -23,45 +22,54 @@ fn main() {
         }
     };
 
-    // Instancie les modules selon la config
-    // Extractor
-    let extractor: Box<dyn extractors::Extractor> = match config.extractor.kind.as_str() {
-        "csv" => Box::new(CsvExtractor {
+    // Instantiate the extractor
+    let extractor = match config.extractor.kind.as_str() {
+        "csv" => Extractor::Csv(CsvExtractor {
             path: config.extractor.path.clone().unwrap_or_else(|| "input.csv".to_string()),
+            has_headers: config.extractor.has_headers.unwrap_or(true),
         }),
+        "postgres" => Extractor::Postgres(PostgresExtractor),
         other => {
-            eprintln!("Extracteur non supporté: {}", other);
+            log_error(&EtlError::Other(format!("Unsupported extractor: {}", other)));
             return;
         }
     };
 
-    // Transformer
-    let transformer: Box<dyn transformers::Transformer> = match config.transformer.kind.as_str() {
-        "uppercase" => Box::new(UppercaseTransformer),
+    // Instantiate the transformer
+    let transformer = match config.transformer.kind.as_str() {
+        "uppercase" => Transformer::Uppercase(UppercaseTransformer),
+        "filter" => {
+            let col = config.transformer.column.unwrap_or(0);
+            let val = config.transformer.value.clone().unwrap_or_default();
+            Transformer::Filter(FilterTransformer { column: col, value: val })
+        }
         other => {
-            eprintln!("Transformateur non supporté: {}", other);
+            log_error(&EtlError::Other(format!("Unsupported transformer: {}", other)));
             return;
         }
     };
 
-    // Loader
-    let loader: Box<dyn loaders::Loader> = match config.loader.kind.as_str() {
-        "csv" => Box::new(CsvLoader {
+    // Instantiate the loader
+    let loader = match config.loader.kind.as_str() {
+        "csv" => Loader::Csv(CsvLoader {
             path: config.loader.path.clone().unwrap_or_else(|| "output.csv".to_string()),
+            has_headers: config.loader.has_headers.unwrap_or(true),
+            headers: config.loader.headers.clone(),
         }),
+        "postgres" => Loader::Postgres(PostgresLoader),
         other => {
-            eprintln!("Loader non supporté: {}", other);
+            log_error(&EtlError::Other(format!("Unsupported loader: {}", other)));
             return;
         }
     };
 
     let pipeline = Pipeline {
-        extractor: extractor.as_ref(),
-        transformer: transformer.as_ref(),
-        loader: loader.as_ref(),
+        extractor,
+        transformer,
+        loader,
     };
 
     if let Err(e) = pipeline.run() {
-        log_error(e.as_ref());
+        log_error(&e);
     }
 }
