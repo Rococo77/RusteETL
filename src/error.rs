@@ -39,3 +39,9 @@ impl From<csv::Error> for EtlError {
         EtlError::Csv(e)
     }
 }
+
+impl From<calamine::Error> for EtlError {
+    fn from(e: calamine::Error) -> Self {
+        EtlError::Other(format!("Calamine error: {}", e))
+    }
+}

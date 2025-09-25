@@ -6,8 +6,8 @@
 
 use crate::error::EtlError;
 use crate::extractors::{csv::CsvExtractor, postgres::PostgresExtractor};
-use crate::transformers::{filter::FilterTransformer, uppercase::UppercaseTransformer};
 use crate::loaders::{csv::CsvLoader, postgres::PostgresLoader};
+use crate::transformers::{filter::FilterTransformer, uppercase::UppercaseTransformer};
 
 /// Enum des extracteurs disponibles
 /// Available extractor implementations.

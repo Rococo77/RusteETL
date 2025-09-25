@@ -27,7 +27,9 @@ impl CsvLoader {
             .has_headers(self.has_headers)
             .from_path(&self.path)?;
 
-        if self.has_headers && let Some(ref headers) = self.headers {
+        if self.has_headers
+            && let Some(ref headers) = self.headers
+        {
             wtr.write_record(headers)?;
         }
 
