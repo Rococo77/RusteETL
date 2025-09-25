@@ -5,8 +5,8 @@
 
 use ruste_etl::config::load_config;
 use ruste_etl::error::EtlError;
-use ruste_etl::extractors::{csv::CsvExtractor, postgres::PostgresExtractor};
 use ruste_etl::extractors::xlsx::XlsxExtractor;
+use ruste_etl::extractors::{csv::CsvExtractor, postgres::PostgresExtractor};
 use ruste_etl::loaders::{csv::CsvLoader, postgres::PostgresLoader};
 use ruste_etl::pipeline::{Extractor, Loader, Pipeline, Transformer};
 use ruste_etl::transformers::{filter::FilterTransformer, uppercase::UppercaseTransformer};
@@ -32,11 +32,22 @@ fn main() {
                 .clone()
                 .unwrap_or_else(|| "input.csv".to_string()),
             has_headers: config.extractor.has_headers.unwrap_or(true),
-            delimiter: config.extractor.delimiter.as_ref().and_then(|s| s.as_bytes().first().cloned()),
+            delimiter: config
+                .extractor
+                .delimiter
+                .as_ref()
+                .and_then(|s| s.as_bytes().first().cloned()),
         }),
         "xlsx" => {
-            let path = config.extractor.path.clone().unwrap_or_else(|| "input.xlsx".to_string());
-            Extractor::Xlsx(XlsxExtractor { path, sheet: config.extractor.sheet.clone() })
+            let path = config
+                .extractor
+                .path
+                .clone()
+                .unwrap_or_else(|| "input.xlsx".to_string());
+            Extractor::Xlsx(XlsxExtractor {
+                path,
+                sheet: config.extractor.sheet.clone(),
+            })
         }
         "postgres" => Extractor::Postgres(PostgresExtractor),
         other => {
