@@ -26,6 +26,10 @@ jobs:
           key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
       - name: Set up toolchain
         run: rustup default stable
+      - name: Install rustfmt & clippy components
+        run: |
+          rustup component add rustfmt || true
+          rustup component add clippy || true
       - name: Cargo fmt check
         run: cargo fmt -- --check
       - name: Cargo clippy
