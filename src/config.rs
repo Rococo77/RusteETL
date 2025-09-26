@@ -50,6 +50,16 @@ pub struct LoaderConfig {
     pub has_headers: Option<bool>,
     /// Optional headers to write.
     pub headers: Option<Vec<String>>,
+    /// HTTP endpoint for http loader.
+    pub endpoint: Option<String>,
+    /// Number of retries for loaders that support retry/backoff.
+    pub retries: Option<usize>,
+    /// Number of rows per HTTP POST batch. If omitted, defaults to 1000.
+    pub batch_size: Option<usize>,
+    /// Base delay in milliseconds for retries (exponential backoff base). Optional.
+    pub base_delay_ms: Option<u64>,
+    /// Maximum jitter in milliseconds to add to backoff delay. Optional.
+    pub jitter_ms: Option<u64>,
 }
 
 /// Load configuration from a YAML file at `path`.

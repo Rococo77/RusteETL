@@ -7,6 +7,7 @@ use crate::error::EtlError;
 use calamine::{DataType, Reader, open_workbook_auto};
 
 /// XLSX extractor config.
+#[derive(Clone)]
 pub struct XlsxExtractor {
     /// Path to the xlsx file.
     pub path: String,
@@ -49,5 +50,14 @@ impl XlsxExtractor {
         }
 
         Ok(out)
+    }
+
+    /// Async wrapper around `extract`.
+    pub async fn extract_async(&self) -> Result<Vec<Vec<String>>, EtlError> {
+        let me = self.clone();
+        let res = tokio::task::spawn_blocking(move || me.extract())
+            .await
+            .map_err(|e| EtlError::Other(format!("Task join error: {}", e)))??;
+        Ok(res)
     }
 }

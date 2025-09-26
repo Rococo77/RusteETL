@@ -6,6 +6,7 @@ use crate::error::EtlError;
 use csv::ReaderBuilder;
 
 /// CSV extractor configuration.
+#[derive(Clone)]
 pub struct CsvExtractor {
     /// Path to the input CSV file.
     pub path: String,
@@ -29,6 +30,15 @@ impl CsvExtractor {
             out.push(rec);
         }
         Ok(out)
+    }
+
+    /// Async wrapper around `extract` using a blocking task.
+    pub async fn extract_async(&self) -> Result<Vec<Vec<String>>, EtlError> {
+        let me = self.clone();
+        let res = tokio::task::spawn_blocking(move || me.extract())
+            .await
+            .map_err(|e| EtlError::Other(format!("Task join error: {}", e)))??;
+        Ok(res)
     }
 
     /// Return an iterator over records. Each record is a Vec<String>.

@@ -3,8 +3,8 @@ use ruste_etl::loaders::csv::CsvLoader;
 use ruste_etl::pipeline::{Extractor, Loader, Pipeline, Transformer};
 use ruste_etl::transformers::uppercase::UppercaseTransformer;
 
-#[test]
-fn test_pipeline_run() {
+#[tokio::test]
+async fn test_pipeline_run() {
     let tmp_in = std::env::temp_dir().join(format!(
         "ruste_etl_test_in_{}.csv",
         std::time::SystemTime::now()
@@ -37,7 +37,7 @@ fn test_pipeline_run() {
         transformer,
         loader,
     };
-    let result = pipeline.run();
+    let result = pipeline.run().await;
     assert!(result.is_ok());
 
     let _ = std::fs::remove_file(&tmp_in);

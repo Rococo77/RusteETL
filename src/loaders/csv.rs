@@ -8,6 +8,7 @@ use crate::error::EtlError;
 use csv::WriterBuilder;
 
 /// CSV loader configuration and behaviour.
+#[derive(Clone)]
 pub struct CsvLoader {
     /// Path to the output CSV file.
     pub path: String,

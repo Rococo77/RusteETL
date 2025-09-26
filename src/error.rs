@@ -9,6 +9,8 @@ pub enum EtlError {
     Io(std::io::Error),
     /// CSV parsing/writing errors.
     Csv(csv::Error),
+    /// HTTP client errors from reqwest
+    Http(reqwest::Error),
     /// Placeholder for not implemented features.
     NotImplemented,
     /// Arbitrary other error with message.
@@ -20,6 +22,7 @@ impl std::fmt::Display for EtlError {
         match self {
             EtlError::Io(e) => write!(f, "IO error: {}", e),
             EtlError::Csv(e) => write!(f, "CSV error: {}", e),
+            EtlError::Http(e) => write!(f, "HTTP error: {}", e),
             EtlError::NotImplemented => write!(f, "Not implemented"),
             EtlError::Other(msg) => write!(f, "Error: {}", msg),
         }
@@ -43,5 +46,11 @@ impl From<csv::Error> for EtlError {
 impl From<calamine::Error> for EtlError {
     fn from(e: calamine::Error) -> Self {
         EtlError::Other(format!("Calamine error: {}", e))
+    }
+}
+
+impl From<reqwest::Error> for EtlError {
+    fn from(e: reqwest::Error) -> Self {
+        EtlError::Http(e)
     }
 }

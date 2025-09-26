@@ -2,6 +2,7 @@
 
 use crate::error::EtlError;
 
+#[derive(Clone)]
 pub struct PostgresLoader;
 
 impl PostgresLoader {
